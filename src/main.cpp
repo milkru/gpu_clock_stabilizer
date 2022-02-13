@@ -1,28 +1,24 @@
-#include <iostream>
+#pragma comment(lib, "d3d12.lib")
+#pragma comment(lib, "dxgi.lib")
+
 #include <d3d12.h>
 #include <dxgi1_6.h>
-
-inline void ThrowIfFailed(HRESULT hr)
-{
-	if (FAILED(hr))
-	{
-		throw std::exception();
-	}
-}
 
 int main(int argc, char* argv[])
 {
 	// Create Factory.
-	UINT dxgiFactoryFlags = 0;
-	IDXGIFactory4* mFactory = nullptr;
-	ThrowIfFailed(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&mFactory)));
+	IDXGIFactory4* factory = nullptr;
+	if (FAILED(CreateDXGIFactory2(0, IID_PPV_ARGS(&factory))))
+	{
+		return EXIT_FAILURE;
+	}
 
 	// Pick Adapter.
-	IDXGIAdapter1* mAdapter = nullptr;
-	for (UINT adapterIndex = 0; DXGI_ERROR_NOT_FOUND != mFactory->EnumAdapters1(adapterIndex, &mAdapter); ++adapterIndex)
+	IDXGIAdapter1* adapter = nullptr;
+	for (UINT adapterIndex = 0; factory->EnumAdapters1(adapterIndex, &adapter) != DXGI_ERROR_NOT_FOUND; ++adapterIndex)
 	{
 		DXGI_ADAPTER_DESC1 desc;
-		mAdapter->GetDesc1(&desc);
+		adapter->GetDesc1(&desc);
 
 		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
 		{
@@ -30,21 +26,25 @@ int main(int argc, char* argv[])
 			continue;
 		}
 
-		// Check to see if the adapter supports Direct3D 12, but don't create
-		// the actual device yet.
-		if (SUCCEEDED(D3D12CreateDevice(mAdapter, D3D_FEATURE_LEVEL_12_0, _uuidof(ID3D12Device), nullptr)))
+		// Check to see if the adapter supports Direct3D 12, but don't create the actual device yet.
+		if (SUCCEEDED(D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_12_0, _uuidof(ID3D12Device), nullptr)))
 		{
 			break;
 		}
 
 		// We won't use this adapter, so release it
-		mAdapter->Release();
+		adapter->Release();
 	}
 
 	// Create Device.
-	ID3D12Device* mDevice = nullptr;
-	ThrowIfFailed(D3D12CreateDevice(mAdapter, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&mDevice)));
+	ID3D12Device* device = nullptr;
+	if (FAILED(D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&device))))
+	{
+		return EXIT_FAILURE;
+	}
 
-	// Stabilize.
-	//mDevice->SetStablePowerState(TRUE);
+	// Clock stabilization.
+	device->SetStablePowerState(TRUE);
+
+	return EXIT_SUCCESS;
 }
