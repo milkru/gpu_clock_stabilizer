@@ -1,4 +1,4 @@
-# Simple DX12 based gpu clock stabilizer used for consistent gpu profiling on Win.
+## Simple DX12 based gpu clock stabilizer used for consistent gpu profiling on Win.
 
 Since DirectX 12 only runs on the Windows 10 operating system, you must have access to a computer running Windows 10 in order to run the demo.
 
