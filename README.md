@@ -1,5 +1,5 @@
 ## About
-A simple *DirectX 12* based *GPU clock stabilizer* used for consistent *GPU* profiling on *Windows*. It can be used for profiling applications made with other graphics APIs as well. It utilizes *DirectX 12's* `SetStablePowerState` in order to achieve this.
+A simple *DirectX 12* based *GPU clock stabilizer* used for consistent *GPU* profiling on *Windows*. It can be used for profiling applications made with other graphics APIs as well. It utilizes *DirectX 12's* `SetStablePowerState` device method in order to achieve this.
 
 ## Installation
 The *DirectX 12 SDK* comes included with the *Windows 10 SDK* which is part of the *Visual Studio* installation. Just make sure you install the *Game Development with C++* in the *Visual Studio Installer*.
