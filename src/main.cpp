@@ -10,30 +10,8 @@
 int wmain(int argc, wchar_t* argv[], wchar_t* envp[])
 {
 	// Parse arguments.
-	BOOL stablePowerStateEnable = TRUE;
-	if (argc > 1)
-	{
-		if (wcscmp(argv[1], L"true") == 0 || wcscmp(argv[1], L"TRUE") == 0)
-		{
-			stablePowerStateEnable = TRUE;
-		}
-		else if (wcscmp(argv[1], L"false") == 0 || wcscmp(argv[1], L"FALSE") == 0)
-		{
-			stablePowerStateEnable = FALSE;
-		}
-		else
-		{
-			fwprintf_s(stderr, L"Parsing the argument \"%ls\" FAILED.\n", argv[1]);
-			return EXIT_FAILURE;
-		}
-	}
+	wchar_t* requestedAdapterName = argc > 1 ? argv[1] : nullptr;
 
-	wchar_t* requestedAdapterName = nullptr;
-	if (argc > 2)
-	{
-		requestedAdapterName = argv[2];
-	}
-	
 	// Create Factory.
 	Microsoft::WRL::ComPtr<IDXGIFactory4> factory;
 	if (FAILED(CreateDXGIFactory2(0, IID_PPV_ARGS(&factory))))
@@ -56,7 +34,7 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[])
 			continue;
 		}
 
-		// Skip adapter if it's not requested.
+		// Skip an adapter if it's not requested.
 		if (requestedAdapterName != nullptr && wcscmp(requestedAdapterName, adapterDescriptor.Description) != 0)
 		{
 			continue;
@@ -94,12 +72,17 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[])
 	}
 
 	// Stabilize power state.
-	if (FAILED(device->SetStablePowerState(stablePowerStateEnable)))
+	if (FAILED(device->SetStablePowerState(TRUE)))
 	{
-		fwprintf_s(stderr, L"SetStablePowerState(%d) FAILED for \"%ls\" adapter.\n", stablePowerStateEnable, adapterDescriptor.Description);
+		fwprintf_s(stderr, L"SetStablePowerState(TRUE) FAILED for \"%ls\" adapter.\n", adapterDescriptor.Description);
 		return EXIT_FAILURE;
 	}
 
-	fwprintf_s(stdout, L"SetStablePowerState(%d) SUCCEEDED for \"%ls\" adapter.\n", stablePowerStateEnable, adapterDescriptor.Description);
+	fwprintf_s(stdout, L"SetStablePowerState(TRUE) SUCCEEDED for \"%ls\" adapter.\n", adapterDescriptor.Description);
+	fprintf_s(stdout, "Clock will remain stable while the application is running.\n");
+
+	// Turning off the application reverts the clock.
+	Sleep(INFINITE);
+
 	return EXIT_SUCCESS;
 }
