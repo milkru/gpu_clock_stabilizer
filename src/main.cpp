@@ -4,47 +4,102 @@
 #include <d3d12.h>
 #include <dxgi1_6.h>
 
-int main(int argc, char* argv[])
+#include <wrl.h>
+#include <stdio.h>
+
+int wmain(int argc, wchar_t* argv[], wchar_t* envp[])
 {
+	// Parse arguments.
+	BOOL stablePowerStateEnable = TRUE;
+	if (argc > 1)
+	{
+		if (wcscmp(argv[1], L"true") == 0 || wcscmp(argv[1], L"TRUE") == 0)
+		{
+			stablePowerStateEnable = TRUE;
+		}
+		else if (wcscmp(argv[1], L"false") == 0 || wcscmp(argv[1], L"FALSE") == 0)
+		{
+			stablePowerStateEnable = FALSE;
+		}
+		else
+		{
+			fwprintf_s(stderr, L"Parsing the argument \"%ls\" FAILED.\n", argv[1]);
+			return EXIT_FAILURE;
+		}
+	}
+
+	wchar_t* requestedAdapterName = nullptr;
+	if (argc > 2)
+	{
+		requestedAdapterName = argv[2];
+	}
+	
 	// Create Factory.
-	IDXGIFactory4* factory = nullptr;
+	Microsoft::WRL::ComPtr<IDXGIFactory4> factory;
 	if (FAILED(CreateDXGIFactory2(0, IID_PPV_ARGS(&factory))))
 	{
+		fprintf_s(stderr, "IDXGIFactory4 creation FAILED.\n");
 		return EXIT_FAILURE;
 	}
 
 	// Pick Adapter.
-	IDXGIAdapter1* adapter = nullptr;
+	bool adapterFound = false;
+	Microsoft::WRL::ComPtr<IDXGIAdapter1> adapter;
+	DXGI_ADAPTER_DESC1 adapterDescriptor;
 	for (UINT adapterIndex = 0; factory->EnumAdapters1(adapterIndex, &adapter) != DXGI_ERROR_NOT_FOUND; ++adapterIndex)
 	{
-		DXGI_ADAPTER_DESC1 desc;
-		adapter->GetDesc1(&desc);
+		adapter->GetDesc1(&adapterDescriptor);
 
-		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
+		// Skip software adapters.
+		if ((adapterDescriptor.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) != 0)
 		{
-			// Don't select the Basic Render Driver adapter.
 			continue;
 		}
 
-		// Check to see if the adapter supports Direct3D 12, but don't create the actual device yet.
-		if (SUCCEEDED(D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_12_0, _uuidof(ID3D12Device), nullptr)))
+		// Skip adapter if it's not requested.
+		if (requestedAdapterName != nullptr && wcscmp(requestedAdapterName, adapterDescriptor.Description) != 0)
 		{
-			break;
+			continue;
 		}
 
-		// We won't use this adapter, so release it
-		adapter->Release();
+		// Adequate adapter found.
+		if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
+		{
+			adapterFound = true;
+			break;
+		}
 	}
 
-	// Create Device.
-	ID3D12Device* device = nullptr;
-	if (FAILED(D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&device))))
+	if (adapterFound)
 	{
+		fwprintf_s(stdout, L"Adapter \"%ls\" successfully FOUND.\n", adapterDescriptor.Description);
+	}
+	else if (requestedAdapterName != nullptr)
+	{
+		fwprintf_s(stderr, L"Required adapter \"%ls\" NOT FOUND.\n", requestedAdapterName);
+		return EXIT_FAILURE;
+	}
+	else
+	{
+		fwprintf_s(stderr, L"NOT a single adapter was FOUND.\n");
 		return EXIT_FAILURE;
 	}
 
-	// Clock stabilization.
-	device->SetStablePowerState(TRUE);
+	// Create Device.
+	Microsoft::WRL::ComPtr<ID3D12Device> device;
+	if (FAILED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&device))))
+	{
+		fwprintf_s(stderr, L"ID3D12Device creation FAILED for \"%ls\".\n", adapterDescriptor.Description);
+		return EXIT_FAILURE;
+	}
 
+	// Stabilize power state.
+	if (FAILED(device->SetStablePowerState(stablePowerStateEnable)))
+	{
+		fwprintf_s(stderr, L"SetStablePowerState(%d) FAILED for \"%ls\" adapter.\n", stablePowerStateEnable, adapterDescriptor.Description);
+		return EXIT_FAILURE;
+	}
+
+	fwprintf_s(stdout, L"SetStablePowerState(%d) SUCCEEDED for \"%ls\" adapter.\n", stablePowerStateEnable, adapterDescriptor.Description);
 	return EXIT_SUCCESS;
 }
