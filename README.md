@@ -10,7 +10,7 @@ Run cmd `cmake . -B bin -A x64` in the project's root.
 If not specified in the command line, the first available *GPU* will be chosen. You can also specifiy the GPU explicitly by passing the name of the preferred GPU, for example "*NVIDIA GeForce RTX 3070*". Names of your *GPUs* can be found in *Device Manager*, *Display Adapters* tab. This way the application can work on *multi GPU system*. In order for *GPU clock* to remain stable, the application should remain running at all times. After exiting the application, clock stabilization will stop working. For testing the *GPU clock* I recommend using the [TechPowerUp GPU-Z](https://www.techpowerup.com/download/techpowerup-gpu-z/). Observe the *Sensors/GPU Core Clock's* behavior with and without the application running.
 
 ## Troubleshooting
-If `SetStablePowerState` is failing, please refer to the [SetStablePowerState Microsoft Documentation](https://docs.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12device-setstablepowerstate) for troubleshooting.
+If `SetStablePowerState` is failing, please refer to the [ID3D12Device::SetStablePowerState Microsoft Documentation](https://docs.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12device-setstablepowerstate) for troubleshooting.
 
 ## License
 Distributed under the MIT License. See `LICENSE` for more information.
