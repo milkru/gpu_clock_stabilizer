@@ -14,16 +14,16 @@ SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/bin)
 SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/bin)
 
 file(GLOB_RECURSE SRC_FILES RELATIVE
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/*.h
 )
 
 foreach(source IN LISTS SRC_FILES)
-    get_filename_component(source_path "${source}" PATH)
-    string(REPLACE "/" "\\" source_path_msvc "${source_path}")
-    string(REPLACE "src" "" source_path_final "${source_path_msvc}")
-    source_group("${source_path_final}" FILES "${source}")
+	get_filename_component(source_path "${source}" PATH)
+	string(REPLACE "/" "\\" source_path_msvc "${source_path}")
+	string(REPLACE "src" "" source_path_final "${source_path_msvc}")
+	source_group("${source_path_final}" FILES "${source}")
 endforeach()
 
 add_executable(${PROJECT_NAME} ${SRC_FILES})
