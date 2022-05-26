@@ -3,9 +3,10 @@
 
 #include <d3d12.h>
 #include <dxgi1_6.h>
-
 #include <wrl.h>
-#include <stdio.h>
+
+#include <thread>
+#include <chrono>
 
 int wmain(int argc, wchar_t* argv[], wchar_t* envp[])
 {
@@ -16,7 +17,8 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[])
 	if (FAILED(CreateDXGIFactory2(0, IID_PPV_ARGS(&factory))))
 	{
 		fprintf_s(stderr, "IDXGIFactory4 creation FAILED.\n");
-		Sleep(INFINITE);
+
+		std::this_thread::sleep_for(std::chrono::minutes(1));
 		return EXIT_FAILURE;
 	}
 
@@ -55,13 +57,15 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[])
 	else if (requestedAdapterName != nullptr)
 	{
 		fwprintf_s(stderr, L"Required adapter \"%ls\" NOT FOUND.\n", requestedAdapterName);
-		Sleep(INFINITE);
+
+		std::this_thread::sleep_for(std::chrono::minutes(1));
 		return EXIT_FAILURE;
 	}
 	else
 	{
 		fwprintf_s(stderr, L"NOT a single adapter was FOUND.\n");
-		Sleep(INFINITE);
+
+		std::this_thread::sleep_for(std::chrono::minutes(1));
 		return EXIT_FAILURE;
 	}
 
@@ -70,7 +74,8 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[])
 	if (FAILED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&device))))
 	{
 		fwprintf_s(stderr, L"ID3D12Device creation FAILED for \"%ls\".\n", adapterDescriptor.Description);
-		Sleep(INFINITE);
+
+		std::this_thread::sleep_for(std::chrono::minutes(1));
 		return EXIT_FAILURE;
 	}
 
@@ -78,7 +83,8 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[])
 	if (FAILED(device->SetStablePowerState(TRUE)))
 	{
 		fwprintf_s(stderr, L"SetStablePowerState(TRUE) FAILED for \"%ls\" adapter.\n", adapterDescriptor.Description);
-		Sleep(INFINITE);
+
+		std::this_thread::sleep_for(std::chrono::minutes(1));
 		return EXIT_FAILURE;
 	}
 
@@ -86,6 +92,6 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[])
 	fprintf_s(stdout, "Clock will remain stable while the application is running.\n");
 
 	// Turning off the application reverts the clock.
-	Sleep(INFINITE);
+	std::this_thread::sleep_for(std::chrono::hours(1));
 	return EXIT_SUCCESS;
 }
