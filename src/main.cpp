@@ -9,7 +9,6 @@
 
 int wmain(int argc, wchar_t* argv[], wchar_t* envp[])
 {
-	// Parse arguments.
 	wchar_t* requestedAdapterName = argc > 1 ? argv[1] : nullptr;
 
 	// Create Factory.
@@ -17,6 +16,7 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[])
 	if (FAILED(CreateDXGIFactory2(0, IID_PPV_ARGS(&factory))))
 	{
 		fprintf_s(stderr, "IDXGIFactory4 creation FAILED.\n");
+		Sleep(INFINITE);
 		return EXIT_FAILURE;
 	}
 
@@ -55,11 +55,13 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[])
 	else if (requestedAdapterName != nullptr)
 	{
 		fwprintf_s(stderr, L"Required adapter \"%ls\" NOT FOUND.\n", requestedAdapterName);
+		Sleep(INFINITE);
 		return EXIT_FAILURE;
 	}
 	else
 	{
 		fwprintf_s(stderr, L"NOT a single adapter was FOUND.\n");
+		Sleep(INFINITE);
 		return EXIT_FAILURE;
 	}
 
@@ -68,6 +70,7 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[])
 	if (FAILED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&device))))
 	{
 		fwprintf_s(stderr, L"ID3D12Device creation FAILED for \"%ls\".\n", adapterDescriptor.Description);
+		Sleep(INFINITE);
 		return EXIT_FAILURE;
 	}
 
@@ -75,6 +78,7 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[])
 	if (FAILED(device->SetStablePowerState(TRUE)))
 	{
 		fwprintf_s(stderr, L"SetStablePowerState(TRUE) FAILED for \"%ls\" adapter.\n", adapterDescriptor.Description);
+		Sleep(INFINITE);
 		return EXIT_FAILURE;
 	}
 
@@ -83,6 +87,5 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[])
 
 	// Turning off the application reverts the clock.
 	Sleep(INFINITE);
-
 	return EXIT_SUCCESS;
 }
