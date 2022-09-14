@@ -1,4 +1,4 @@
-## About
+# About
 A simple *DirectX 12* based *GPU clock stabilizer* used for consistent *GPU* profiling on *Windows*. It can be used for profiling applications made with other modern graphics APIs as well. It utilizes *DirectX 12's* `SetStablePowerState` device method in order to achieve this. This allows more deterministic timestamp query results used for calculating elapsed *GPU* time for any given range of render calls at the expense of lower performance. You can read more about it [here](https://developer.nvidia.com/dx12-dos-and-donts#powerstate). Also, make sure that your GPU actually supports [ID3D12Device::SetStablePowerState](https://docs.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12device-setstablepowerstate).
 
 ## Installation
